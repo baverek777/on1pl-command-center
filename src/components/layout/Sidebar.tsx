@@ -9,7 +9,6 @@ import {
   Settings,
   FolderOpen,
   Clapperboard,
-  Megaphone,
   MessageSquare,
   Plus,
   ChevronLeft,
@@ -19,6 +18,8 @@ import {
   Globe,
   Moon,
   User,
+  ExternalLink,
+  Sheet,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore, useNavigationStore, useUserStore } from '@/stores';
@@ -26,20 +27,34 @@ import type { NavigationPage } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
-// ─── Discord Pinned Items ──────────────────────────────────────────────────
+// ─── Discord Pinned Items (External Direct Links) ──────────────────────────
 
 interface DiscordPinnedItem {
   id: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  unreadCount: number;
+  url: string;
 }
 
 const discordPinnedItems: DiscordPinnedItem[] = [
-  { id: 'akta', label: 'ON1PL Akta', icon: FolderOpen, unreadCount: 3 },
-  { id: 'tiktok', label: 'ON1PL TikTok', icon: Clapperboard, unreadCount: 7 },
-  { id: 'ogloszenia', label: 'ON1PL Ogłoszenia', icon: Megaphone, unreadCount: 2 },
-  { id: 'discord', label: 'ON1PL Discord', icon: MessageSquare, unreadCount: 12 },
+  {
+    id: 'akta',
+    label: 'ON1PL Akta',
+    icon: Sheet,
+    url: 'https://docs.google.com/spreadsheets/d/1KcHjmev34Xtp9oxnQJTHVaU2acvkaYY_kAGelEX_Nuo/edit?gid=1458623191#gid=1458623191',
+  },
+  {
+    id: 'tiktok',
+    label: 'ON1PL TikTok',
+    icon: Clapperboard,
+    url: 'https://www.tiktok.com/@.on1pl',
+  },
+  {
+    id: 'discord',
+    label: 'ON1PL Discord',
+    icon: MessageSquare,
+    url: 'https://discord.gg/on1pl',
+  },
 ];
 
 // ─── Navigation Items ──────────────────────────────────────────────────────
@@ -160,8 +175,15 @@ function UserDropdown({ isOpen, onClose, collapsed }: UserDropdownProps) {
 
 export function Sidebar() {
   const { conversations, createConversation, setActiveConversation } = useChatStore();
-  const { currentPage, sidebarCollapsed, toggleSidebar, setPage, setSearchOpen } =
-    useNavigationStore();
+  const {
+    currentPage,
+    sidebarCollapsed,
+    toggleSidebar,
+    setPage,
+    setSearchOpen,
+    mobileMenuOpen,
+    setMobileMenuOpen,
+  } = useNavigationStore();
   const { user } = useUserStore();
 
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -173,25 +195,28 @@ export function Sidebar() {
     const id = createConversation();
     setActiveConversation(id);
     setPage('chat');
-  }, [createConversation, setActiveConversation, setPage]);
+    setMobileMenuOpen(false);
+  }, [createConversation, setActiveConversation, setPage, setMobileMenuOpen]);
 
   const handleNavClick = useCallback(
     (item: NavItem) => {
+      setMobileMenuOpen(false);
       if (item.action === 'search') {
         setSearchOpen(true);
       } else if (item.page) {
         setPage(item.page);
       }
     },
-    [setPage, setSearchOpen]
+    [setPage, setSearchOpen, setMobileMenuOpen]
   );
 
   const handleChatClick = useCallback(
     (chatId: string) => {
       setActiveConversation(chatId);
       setPage('chat');
+      setMobileMenuOpen(false);
     },
-    [setActiveConversation, setPage]
+    [setActiveConversation, setPage, setMobileMenuOpen]
   );
 
   const recentChats = showAllChats ? conversations : conversations.slice(0, 5);
@@ -208,17 +233,21 @@ export function Sidebar() {
     <aside
       className={cn(
         'h-screen flex flex-col bg-stealth-800 border-r border-stealth-400/20',
-        'transition-all duration-300 ease-in-out flex-shrink-0 relative',
-        collapsed ? 'w-16' : 'w-[280px]'
+        'transition-all duration-300 ease-in-out flex-shrink-0',
+        // Desktop
+        'hidden md:flex relative',
+        collapsed ? 'md:w-16' : 'md:w-[280px]',
+        // Mobile Drawer
+        mobileMenuOpen && 'flex fixed inset-y-0 left-0 z-50 w-[280px] shadow-2xl bg-[#141414]'
       )}
     >
-      {/* Collapse Toggle Button */}
+      {/* Collapse Toggle Button (Desktop only) */}
       <button
         onClick={toggleSidebar}
         className={cn(
-          'absolute -right-3 top-6 z-20 w-6 h-6 rounded-full',
+          'hidden md:flex absolute -right-3 top-6 z-20 w-6 h-6 rounded-full',
           'bg-stealth-600 border border-stealth-400/30',
-          'flex items-center justify-center',
+          'items-center justify-center',
           'text-white/50 hover:text-copper hover:border-copper/30',
           'transition-all duration-200'
         )}
@@ -303,7 +332,7 @@ export function Sidebar() {
         {/* Divider */}
         <div className="divider" />
 
-        {/* ── Discord Pinned Section ── */}
+        {/* ── Discord Pinned Section (Direct External Links) ── */}
         <div className="mb-4 mt-3">
           {!collapsed && (
             <div className="flex items-center gap-2 px-3 mb-2">
@@ -313,37 +342,34 @@ export function Sidebar() {
               <div className="flex-1 h-px bg-copper/10" />
             </div>
           )}
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             {discordPinnedItems.map((item) => {
               const Icon = item.icon;
               return (
-                <button
+                <a
                   key={item.id}
-                  title={collapsed ? item.label : undefined}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  title={collapsed ? `${item.label} (otwórz w nowej karcie)` : undefined}
                   className={cn(
-                    'sidebar-item w-full',
-                    collapsed && 'justify-center px-2 relative'
+                    'sidebar-item w-full flex items-center justify-between group',
+                    collapsed && 'justify-center px-2'
                   )}
                 >
-                  <div className="relative flex-shrink-0">
-                    <Icon className="w-[18px] h-[18px]" />
-                    {collapsed && item.unreadCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center bg-copper text-stealth-900 text-[9px] font-bold rounded-full leading-none px-0.5">
-                        {item.unreadCount}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className="w-[18px] h-[18px] text-[#d4a574] group-hover:scale-110 transition-transform shrink-0" />
+                    {!collapsed && (
+                      <span className="flex-1 text-left truncate text-white/80 group-hover:text-white transition-colors">
+                        {item.label}
                       </span>
                     )}
                   </div>
                   {!collapsed && (
-                    <>
-                      <span className="flex-1 text-left truncate">{item.label}</span>
-                      {item.unreadCount > 0 && (
-                        <span className="min-w-[20px] h-5 flex items-center justify-center bg-copper/15 text-copper text-[11px] font-semibold rounded-full px-1.5">
-                          {item.unreadCount}
-                        </span>
-                      )}
-                    </>
+                    <ExternalLink className="w-3.5 h-3.5 text-white/20 group-hover:text-[#d4a574] transition-colors shrink-0" />
                   )}
-                </button>
+                </a>
               );
             })}
           </div>

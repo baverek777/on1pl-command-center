@@ -548,9 +548,9 @@ export function SettingsPanel() {
               <p className="text-[10px] text-emerald-400">Polski model taktyczny</p>
             </div>
             <div className="p-3 bg-[#141414] border border-white/5 rounded-xl">
-              <p className="text-xs text-gray-400">SQB Real-time Webhooks</p>
-              <p className="text-lg font-bold text-white mt-1">Aktywne</p>
-              <p className="text-[10px] text-[#d4a574]">StatShark + SRE Bot</p>
+              <p className="text-xs text-gray-400">Architektura API & Bota</p>
+              <p className="text-lg font-bold text-white mt-1">Aktywna 24/7</p>
+              <p className="text-[10px] text-[#d4a574]">Render Cloud + Discord Gateway</p>
             </div>
           </div>
         </div>

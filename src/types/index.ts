@@ -100,6 +100,27 @@ export interface VehicleMeta {
   popularity: number;
 }
 
+export interface ProjectItem {
+  id: string;
+  name: string;
+  description: string;
+  filesCount: number;
+  lastModified: string;
+  starred: boolean;
+  color: string;
+}
+
+export interface ArtifactItem {
+  id: string;
+  name: string;
+  type: 'document' | 'image' | 'code' | 'spreadsheet';
+  content?: string;
+  size: string;
+  createdAt: string;
+  project?: string;
+  preview?: string;
+}
+
 export interface RecruitmentPost {
   id: string;
   title: string;

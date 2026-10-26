@@ -9,7 +9,8 @@ import type {
   BotLogEntry,
   Connector,
   AppSettings,
-  SQBEvent,
+  ProjectItem,
+  ArtifactItem,
 } from '@/types';
 import { generateId } from '@/lib/utils';
 
@@ -131,20 +132,156 @@ export const useChatStore = create<ChatState>()(
 interface NavigationState {
   currentPage: NavigationPage;
   sidebarCollapsed: boolean;
+  mobileMenuOpen: boolean;
   searchOpen: boolean;
   setPage: (page: NavigationPage) => void;
   toggleSidebar: () => void;
+  toggleMobileMenu: () => void;
+  setMobileMenuOpen: (open: boolean) => void;
   setSearchOpen: (open: boolean) => void;
 }
 
 export const useNavigationStore = create<NavigationState>((set) => ({
   currentPage: 'chat',
   sidebarCollapsed: false,
+  mobileMenuOpen: false,
   searchOpen: false,
-  setPage: (page) => set({ currentPage: page }),
+  setPage: (page) => set({ currentPage: page, mobileMenuOpen: false }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  toggleMobileMenu: () => set((s) => ({ mobileMenuOpen: !s.mobileMenuOpen })),
+  setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
   setSearchOpen: (open) => set({ searchOpen: open }),
 }));
+
+// ─── Projects Store ───────────────────────────────────────────────────────
+
+interface ProjectState {
+  projects: ProjectItem[];
+  addProject: (data: { name: string; description: string; color?: string }) => ProjectItem;
+  deleteProject: (id: string) => void;
+  toggleStarProject: (id: string) => void;
+  updateProject: (id: string, updates: Partial<ProjectItem>) => void;
+}
+
+export const useProjectStore = create<ProjectState>()(
+  persist(
+    (set) => ({
+      projects: [
+        {
+          id: 'proj-1',
+          name: 'Centrum Operacyjne ^ON1PL^',
+          description: 'Główny projekt zarządzania dywizjonem, botem i rekrutacją',
+          filesCount: 3,
+          lastModified: new Date().toISOString(),
+          starred: true,
+          color: '#d4a574',
+        },
+      ],
+      addProject: ({ name, description, color = '#d4a574' }) => {
+        const newProj: ProjectItem = {
+          id: `proj-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          name,
+          description,
+          filesCount: 0,
+          lastModified: new Date().toISOString(),
+          starred: false,
+          color,
+        };
+        set((state) => ({ projects: [newProj, ...state.projects] }));
+        return newProj;
+      },
+      deleteProject: (id) =>
+        set((state) => ({
+          projects: state.projects.filter((p) => p.id !== id),
+        })),
+      toggleStarProject: (id) =>
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === id ? { ...p, starred: !p.starred, lastModified: new Date().toISOString() } : p
+          ),
+        })),
+      updateProject: (id, updates) =>
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === id
+              ? { ...p, ...updates, lastModified: new Date().toISOString() }
+              : p
+          ),
+        })),
+    }),
+    { name: 'on1pl-projects-store' }
+  )
+);
+
+// ─── Artifacts Store ──────────────────────────────────────────────────────
+
+interface ArtifactState {
+  artifacts: ArtifactItem[];
+  addArtifact: (data: {
+    name: string;
+    type: 'document' | 'image' | 'code' | 'spreadsheet';
+    content?: string;
+    project?: string;
+    size?: string;
+  }) => ArtifactItem;
+  deleteArtifact: (id: string) => void;
+  updateArtifact: (id: string, updates: Partial<ArtifactItem>) => void;
+}
+
+export const useArtifactStore = create<ArtifactState>()(
+  persist(
+    (set) => ({
+      artifacts: [
+        {
+          id: 'art-1',
+          name: 'Regulamin_ON1PL_2026.md',
+          type: 'document',
+          size: '4.8 KB',
+          createdAt: new Date().toISOString(),
+          project: 'Centrum Operacyjne ^ON1PL^',
+          preview: 'Oficjalny regulamin dywizjonu ^ON1PL^, zasady awansów i procedury rekrutacyjne.',
+          content: `# REGULAMIN DYWIZJONU ^ON1PL^\n\n1. Szacunek i kultura na serwerze Discord.\n2. Aktywność na bitwach dywizjonowych oraz wspólnych treningach.\n3. Obowiązek posiadania sprawnego mikrofonu i komunikacji na voice chatu.\n4. Rangi oficerskie podlegają weryfikacji przez Dowódcę.`,
+        },
+        {
+          id: 'art-2',
+          name: 'Skrypt_TikTok_Rekrutacja.txt',
+          type: 'document',
+          size: '1.9 KB',
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+          project: 'Centrum Operacyjne ^ON1PL^',
+          preview: 'Haczyk: Szukasz elitarnego polskiego dywizjonu w War Thunder? Sprawdź ^ON1PL^...',
+          content: `🎬 SKRYPT TIKTOK @.on1pl\n\n[0:00-0:03] HACZYK:\n"Szukasz polskiego dywizjonu, z którym wygrasz każdy mecz w War Thunder?"\n\n[0:03-0:15] ZALETY:\n- Aktywna społeczność Discord\n- Doświadczeni dowódcy i coaching\n- Zgrany skład na bitwach dywizjonowych\n\n[0:15-0:20] CTA:\n"Dołącz do ^ON1PL^ już dziś! Link w bio!"`,
+        },
+      ],
+      addArtifact: ({ name, type, content = '', project = 'Centrum Operacyjne ^ON1PL^', size }) => {
+        const calculatedSize = size || `${Math.max(1, Math.round(new Blob([content]).size / 1024))} KB`;
+        const newArt: ArtifactItem = {
+          id: `art-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          name,
+          type,
+          content,
+          project,
+          size: calculatedSize,
+          createdAt: new Date().toISOString(),
+          preview: content.slice(0, 120),
+        };
+        set((state) => ({ artifacts: [newArt, ...state.artifacts] }));
+        return newArt;
+      },
+      deleteArtifact: (id) =>
+        set((state) => ({
+          artifacts: state.artifacts.filter((a) => a.id !== id),
+        })),
+      updateArtifact: (id, updates) =>
+        set((state) => ({
+          artifacts: state.artifacts.map((a) =>
+            a.id === id ? { ...a, ...updates } : a
+          ),
+        })),
+    }),
+    { name: 'on1pl-artifacts-store' }
+  )
+);
 
 // ─── User Store ───────────────────────────────────────────────────────────
 
@@ -210,7 +347,6 @@ export const useUserStore = create<UserState>()(
 interface BotState {
   status: BotStatus;
   logs: BotLogEntry[];
-  sqbEvents: SQBEvent[];
   setStatus: (status: Partial<BotStatus>) => void;
   addLog: (entry: Omit<BotLogEntry, 'id' | 'timestamp'>) => void;
   clearLogs: () => void;
@@ -235,67 +371,29 @@ export const useBotStore = create<BotState>()(
           id: '1',
           timestamp: new Date(Date.now() - 60000),
           level: 'info',
-          message: 'Bot ON1PL uruchomiony pomyślnie',
+          message: 'Bot ^ON1PL^ uruchomiony w chmurze Render',
           source: 'system',
         },
         {
           id: '2',
           timestamp: new Date(Date.now() - 45000),
           level: 'info',
-          message: 'Połączono z serwerem Discord: ^ON1PL^ Squadron',
+          message: 'Połączono z serwerem Discord: ON1PL-ONE NOVA PL (181 członków)',
           source: 'discord',
         },
         {
           id: '3',
           timestamp: new Date(Date.now() - 30000),
           level: 'info',
-          message: 'Tunel Cloudflare aktywny: on1pl-bot-random.trycloudflare.com',
+          message: 'Tunel Cloudflare / API aktywne i nasłuchujące',
           source: 'tunnel',
         },
         {
           id: '4',
-          timestamp: new Date(Date.now() - 15000),
-          level: 'warning',
-          message: 'Wysoki czas odpowiedzi API War Thunder (>2s)',
-          source: 'api',
-        },
-        {
-          id: '5',
           timestamp: new Date(),
           level: 'info',
-          message: 'SQB monitoring aktywny — następny sprawdzian za 2h',
-          source: 'sqb',
-        },
-      ],
-      sqbEvents: [
-        {
-          id: 'sqb-1',
-          name: 'Sprawdzian Dywizjonowy #47',
-          date: new Date(Date.now() + 7200000),
-          status: 'upcoming',
-          participants: 12,
-          battleRating: '11.7',
-          mode: 'RB',
-        },
-        {
-          id: 'sqb-2',
-          name: 'Sprawdzian Dywizjonowy #46',
-          date: new Date(Date.now() - 86400000),
-          status: 'completed',
-          participants: 16,
-          battleRating: '11.7',
-          mode: 'RB',
-          result: { wins: 5, losses: 2, rating: 1847 },
-        },
-        {
-          id: 'sqb-3',
-          name: 'Sprawdzian Dywizjonowy #45',
-          date: new Date(Date.now() - 172800000),
-          status: 'completed',
-          participants: 14,
-          battleRating: '11.3',
-          mode: 'RB',
-          result: { wins: 4, losses: 3, rating: 1832 },
+          message: 'Centrum sterowania ^ON1PL^ gotowe do pracy',
+          source: 'system',
         },
       ],
 
@@ -361,7 +459,6 @@ export const useBotStore = create<BotState>()(
       name: 'on1pl-bot-store',
       partialize: (state) => ({
         status: state.status,
-        sqbEvents: state.sqbEvents,
       }),
     }
   )
