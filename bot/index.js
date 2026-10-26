@@ -8,7 +8,22 @@ app.use(express.json());
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// Pomocnicza funkcja HTTP oparta na wbudowanym module Node.js (działa zawsze i wszędzie)
+const ON1PL_SYSTEM_PROMPT = `Jesteś inteligentnym AI centrum dowodzenia dywizjonu ^ON1PL^ w grze War Thunder.
+Nazywasz się "ON1PL AI". Odpowiadasz po polsku, mądrze, zwięźle i profesjonalnie, jak sztab dywizjonu.
+
+Informacje o klanie:
+- Dywizjon: ^ON1PL^ (ONE NOVA PL) w War Thunder
+- Dowódca: Paweł
+- Discord: discord.gg/on1pl (~181 członków)
+- TikTok: @.on1pl
+- Arkusz dywizjonu: Google Sheets "ON1PL Akta"
+
+Zasady:
+1. Odpowiadaj mądrze, elastycznie i dokładnie na DOWOLNE pytanie użytkownika (geografia, historia, matematyka, gry, taktyka, życie, klan).
+2. Gdy użytkownik pyta stricte o pogodę w danym mieście, wykorzystaj dostarczone w kontekście dane meteorologiczne i skomentuj je pod kątem War Thunder. Jeśli pytanie NIE dotyczy pogody (np. pytania o państwa, sąsiadów, historię), całkowicie zignoruj sekcję meteo i odpowiadaj normalnie na temat pytania!
+3. Pisz po polsku, używaj estetycznego formatowania (pogrubienia, punkty, emoji).
+4. Nigdy nie powtarzaj sztywnych szablonów — odpowiadaj naturalnie i inteligentnie na to, o co pyta Dowódca.`;
+
 function httpRequest(url, options = {}, postData = null) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
@@ -42,22 +57,6 @@ function httpRequest(url, options = {}, postData = null) {
   });
 }
 
-const ON1PL_SYSTEM_PROMPT = `Jesteś inteligentnym AI centrum dowodzenia dywizjonu ^ON1PL^ w grze War Thunder.
-Nazywasz się "ON1PL AI". Odpowiadasz po polsku, mądrze, zwięźle i profesjonalnie, jak sztab dywizjonu.
-
-Informacje o klanie:
-- Dywizjon: ^ON1PL^ (ONE NOVA PL) w War Thunder
-- Dowódca: Paweł
-- Discord: discord.gg/on1pl (~181 członków)
-- TikTok: @.on1pl
-- Arkusz dywizjonu: Google Sheets "ON1PL Akta"
-
-Zasady:
-1. Odpowiadaj mądrze, elastycznie i dokładnie na DOWOLNE pytanie użytkownika (pogoda, historia, matematyka, gry, taktyka, życie, klan).
-2. Gdy pytanie dotyczy pogody w jakimkolwiek mieście, wykorzystaj dostarczone w kontekście dane meteorologiczne i skomentuj warunki pod kątem lotów lub bitew w War Thunder.
-3. Pisz po polsku, używaj estetycznego formatowania (pogrubienia, punkty, emoji).
-4. Nigdy nie powtarzaj sztywnych szablonów — odpowiadaj naturalnie, bezpośrednio i inteligentnie na to, o co pyta Dowódca.`;
-
 app.post('/api/chat', async (req, res) => {
   try {
     const { prompt, messages } = req.body;
@@ -75,7 +74,11 @@ app.post('/api/chat', async (req, res) => {
     const q = lastUserMsg.toLowerCase();
 
     let weatherData = '';
-    if (/pogod|weather|temperatura|zimno|ciepło|deszcz|pada|słońce|chmury|wiatr/i.test(q)) {
+    
+    // Bardzo restrykcyjny warunek wykrywający pogodę - tylko gdy użytkownik o nią pyta
+    const isWeatherQuery = /(?:jaka\s+jest\s+)?pogod[aa-z]*|temperatura|czy\s+pada|deszcz|śnieg|wiatr|ciepło\s+w\s+|zimno\s+w\s+/i.test(q);
+
+    if (isWeatherQuery) {
       let city = 'Radom';
       if (/warszaw/i.test(q)) city = 'Warszawa';
       else if (/krakow/i.test(q)) city = 'Kraków';
@@ -98,7 +101,7 @@ app.post('/api/chat', async (req, res) => {
         const wRes = await httpRequest(`https://wttr.in/${encodeURIComponent(city)}?format=%C+%t+%w+%h&lang=pl`);
         if (wRes.ok) {
           const wText = (await wRes.text()).trim();
-          weatherData = `\n[DANE METEO DLA MIASTA: ${city}] Aktualne warunki: ${wText}. Uwzględnij te dane w naturalnej odpowiedzi dla tego miasta, komentując je pod kątem War Thunder!`;
+          weatherData = `\n[DANE METEO DLA MIASTA: ${city}] Aktualne warunki: ${wText}. Uwzględnij te dane w odpowiedzi, komentując je pod kątem War Thunder!`;
         }
       } catch (err) {
         console.error('Weather fetch error:', err);
