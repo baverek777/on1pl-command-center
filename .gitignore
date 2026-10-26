@@ -1,0 +1,16 @@
+node_modules/
+dist/
+bot/node_modules/
+bot/data/
+local_ai_art/
+venv/
+.env
+bot/.env
+*.exe
+cloudflared.exe
+config.json
+*.docx
+*.xlsx
+*.log
+.DS_Store
+Thumbs.db

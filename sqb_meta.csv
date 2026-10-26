@@ -1,0 +1,112 @@
+BR;Klasa;Maszyna;Nacja;Uwagi
+14.3;Myśliwce / Szturmówki;Eurofighter Typhoon DA;Niemcy;BR 14.0, najlepszy myśliwiec Niemiec, IRIS-T + Meteor
+14.3;Myśliwce / Szturmówki;Rafale C;Francja;BR 14.0, MICA EM/IR, znakomita zwrotność
+14.3;Myśliwce / Szturmówki;Su-30SM;Rosja;BR 14.0, R-77-1, świetne możliwości CAS
+14.3;Myśliwce / Szturmówki;F-15E Strike Eagle;USA;BR 14.0, AIM-120C, najlepszy CAS w USA
+14.3;Myśliwce / Szturmówki;JAS 39C Gripen;Szwecja;BR 14.0, IRIS-T, Meteor, najlżejszy i najzwinniejszy
+14.3;Myśliwce / Szturmówki;F/A-18C Hornet;USA;BR 13.7, AIM-120A, solidny all-rounder
+14.3;Helikoptery;Ka-52;Rosja;BR 12.3, Vikhr ATGM, najlepszy heli top tier
+14.3;Helikoptery;Mi-28NM;Rosja;BR 12.3, LMUR rakiety, doskonały zestaw uzbrojenia
+14.3;Helikoptery;Z-10ME;Chiny;BR 12.3, HJ-10, świetna przeżywalność
+14.3;Czołgi / MBT;Strv 122B+;Szwecja;BR 12.3, najlepszy pancerz kompozytowy, idealny 1-life tank
+14.3;Czołgi / MBT;Leopard 2A7V;Niemcy;BR 12.3, doskonały celownik, najlepszy Leopard
+14.3;Czołgi / MBT;T-90M;Rosja;BR 12.3, Sztora APS, autoloader, doskonały allrounder
+14.3;Czołgi / MBT;M1A2 SEP V2;USA;BR 12.3, TUSK, doskonała mobilność i optyka
+14.3;Czołgi / MBT;Type 10;Japonia;BR 12.0, miniaturyzacja i szybkość, top JP tank
+14.3;Czołgi / MBT;Merkava Mk 4M;Izrael;BR 12.3, Trophy APS, najlepszy aktywny pancerz
+14.3;Pelotki / SPAA;Pantsir-S1;Rosja;BR 12.0, 2x30mm + 12 rakiet, absolutny king SPAA
+14.3;Pelotki / SPAA;Pantsir SM-SV;Rosja;BR 12.3, nowy w patchu Ninth Wave, ulepszona wersja
+14.3;Pelotki / SPAA;ADATS;USA/UK;BR 11.3, 8 rakiet dual-role (powietrze+ziemia)
+14.3;Pelotki / SPAA;ItO 90M;Szwecja;BR 12.0, rakiety Mistral 3, doskonała mobilność
+14.3;Pelotki / SPAA;Type 81C;Japonia;BR 11.7, rakiety IR zasięg 8km
+12.0;Myśliwce / Szturmówki;JAS 39A Gripen;Szwecja;BR 12.0, AIM-9L, doskonały na tym BR
+12.0;Myśliwce / Szturmówki;AV-8B Plus;USA;BR 12.0, AIM-120A, VTOL, świetny CAS
+12.0;Myśliwce / Szturmówki;Harrier GR.7;Wlk. Brytania;BR 11.7, AGM-65, solidny CAS
+12.0;Myśliwce / Szturmówki;F-4F KWS LV;Niemcy;BR 13.0, AIM-120A, najlepszy F-4
+12.0;Helikoptery;Ka-52;Rosja;Vikhr ATGM, najlepszy w klasie
+12.0;Helikoptery;AH Mk.1 Apache;Wlk. Brytania;BR 10.7, Hellfire, świetny na tym BR
+12.0;Czołgi / MBT;Strv 122B+ / PLSS;Szwecja;Absolutny top na tym BR
+12.0;Czołgi / MBT;T-90M;Rosja;Doskonały allrounder z autoloaderem
+12.0;Czołgi / MBT;Leopard 2A7V;Niemcy;Najlepszy celownik w grze
+12.0;Czołgi / MBT;M1A2 SEP V2;USA;Top US tank
+12.0;Czołgi / MBT;2S38;Rosja;BR 11.3, WYJĄTEK: lekki pojazd z 57mm autocannon
+12.0;Czołgi / MBT;Type 10;Japonia;Doskonała mobilność i penetracja
+12.0;Pelotki / SPAA;Pantsir-S1;Rosja;Obowiązkowy
+12.0;Pelotki / SPAA;ItO 90M;Szwecja;Doskonały
+12.0;Pelotki / SPAA;Type 81C;Japonia;Skuteczny
+11.0;Czołgi / MBT;M1A1 AIM / Click-Bait;USA;BR 11.3, najlepszy M1A1
+11.0;Czołgi / MBT;T-80U-E1;Rosja;BR 11.3, kontakt-5, szybki autoloader
+11.0;Czołgi / MBT;Leopard 2A6;Niemcy;BR 11.3, L/55 lufa, świetna penetracja
+11.0;Pelotki / SPAA;ADATS;USA;Dual-role, zabija czołgi i samoloty
+11.0;Pelotki / SPAA;Pantsir-S1;Rosja;Obowiązkowy
+10.0-10.3;Czołgi / MBT;BMP-2M;Rosja;BR 10.0, WYJĄTEK: 4 rakiety Kornet w locie, absolutny król na tym BR
+10.0-10.3;Czołgi / MBT;Leopard 2A4;Niemcy;BR 10.0, solidny MBT
+10.0-10.3;Czołgi / MBT;T-80B;Rosja;BR 10.0, Kontakt-1, szybki autoloader
+10.0-10.3;Czołgi / MBT;AMX-40;Francja;BR 10.0, dobra penetracja
+10.0-10.3;Pelotki / SPAA;2S6 Tunguska;Rosja;BR 10.0, 8 rakiet + 2x30mm
+10.0-10.3;Pelotki / SPAA;LAV-AD;USA;BR 10.0, Stinger x8, szybki i mobilny
+9.0;Myśliwce / Szturmówki;A-10A Early;USA;BR 9.3, GAU-8 Avenger, świetny CAS na tym BR
+9.0;Czołgi / MBT;Leopard A1A1 (L/44);Niemcy;BR 9.0, doskonała lufa i mobilność
+9.0;Czołgi / MBT;Begleitpanzer 57;Niemcy;BR 9.3, WYJĄTEK na downtierze: niszczy lufy i gąsienice
+9.0;Czołgi / MBT;XM-1 (Chrysler);USA;BR 9.3, prototyp M1, niesamowita mobilność
+9.0;Czołgi / MBT;T-64B;Rosja;BR 9.0, autoloader, Kobra ATGM
+9.0;Pelotki / SPAA;Gepard 1A2;Niemcy;BR 9.3, 2x35mm, najlepszy SPAA na tym BR
+9.0;Pelotki / SPAA;ZA-35;Wlk. Brytania;BR 9.0, 2x35mm
+8.0-8.7;Myśliwce / Szturmówki;A-4B Skyhawk;USA;BR 8.3, zwinny, bomby i rakiety
+8.0-8.7;Myśliwce / Szturmówki;G.91 R/3;Niemcy;BR 8.3, doskonały szturmowiec na tym BR
+8.0-8.7;Myśliwce / Szturmówki;Scimitar F Mk.1;Wlk. Brytania;BR 8.3, szybki myśliwiec
+8.0-8.7;Bombowce;Ił-28;Rosja;BR 8.0, bombowiec odrzutowy, świetny do bombing runs
+8.0-8.7;Czołgi / MBT;T-55A / IS-7;Rosja;BR 8.7/8.0, solidne pancerze
+8.0-8.7;Czołgi / MBT;PT-76-57;Rosja;BR 8.7, WYJĄTEK: autoloader 57mm, dewastuje flanki
+8.0-8.7;Czołgi / MBT;Turm III;Niemcy;BR 8.7, autoloader, świetna mobilność
+8.0-8.7;Czołgi / MBT;M60A1 (AOS) / M60A1 RISE(P);USA;BR 8.7, ERA, solidny MBT
+8.0-8.7;Czołgi / MBT;ZTZ59D1 / Object 122MT "SM";Chiny;BR 8.3/8.7
+8.0-8.7;Pelotki / SPAA;Gepard;Niemcy;BR 8.0, obowiązkowy
+8.0-8.7;Pelotki / SPAA;ZA-35;Wlk. Brytania;Dobra alternatywa
+8.0-8.7;Pelotki / SPAA;Chieftain Marksman;Wlk. Brytania;BR 8.3, 2x35mm na platformie Chieftain
+7.0-7.3;Myśliwce / Szturmówki;BI;Rosja;BR 7.0, rakietowy myśliwiec przechwytujący
+7.0-7.3;Myśliwce / Szturmówki;Ar 234 C-3;Niemcy;BR 7.0, odrzutowiec bombowy, świetny CAS
+7.0-7.3;Czołgi / MBT;IS-3;Rosja;BR 7.7, najgrubszy pancerz na tym BR
+7.0-7.3;Czołgi / MBT;T-44-100;Rosja;BR 7.7, doskonała lufa i mobilność
+7.0-7.3;Czołgi / MBT;T32 / T29;USA;BR 7.0/7.7, pancerz wieży nie do przebicia
+7.0-7.3;Czołgi / MBT;AMX-50 / Lorraine 40t;Francja;BR 7.7, autoloader, oskar ofensywny
+7.0-7.3;Pelotki / SPAA;ZSU-23-4M2;Rosja;BR 7.7, 4x23mm, zabija wszystko co lata
+7.0-7.3;Pelotki / SPAA;HS Typ 99;Japonia;BR 7.3, zapalniki zbliżeniowe, bardzo skuteczny
+6.3-6.7;Myśliwce / Szturmówki;Me 262 A-1/U4;Niemcy;BR 6.7, działo 50mm, niszczy bombowce
+6.3-6.7;Myśliwce / Szturmówki;Spitfire LF Mk IX;Wlk. Brytania/Izrael;BR 6.3, najlepszy Spitfire
+6.3-6.7;Myśliwce / Szturmówki;A-1H Skyraider;USA;BR 6.3, doskonały CAS, masa bomb
+6.3-6.7;Bombowce;Tu-2S;Rosja;BR 6.3, szybki bombowiec z dużym ładunkiem
+6.3-6.7;Bombowce;Ju 288 C;Niemcy;BR 6.7, najlepszy bombowiec II WŚ w grze
+6.3-6.7;Czołgi / MBT;Tiger II (H) Sla.16 / Heavy Tank No.6;Niemcy/Japonia;BR 6.7, najlepszy Tiger II
+6.3-6.7;Czołgi / MBT;T26E5;USA;BR 6.7, "Superpershing" z grubym pancerzem
+6.3-6.7;Czołgi / MBT;Panther G / F;Niemcy;BR 6.3/6.7, doskonałe działo i mobilność
+6.3-6.7;Czołgi / MBT;T-34-100;Rosja;BR 6.7, potężna lufa na czołgu T-34
+6.3-6.7;Pelotki / SPAA;Zerstörer 45;Niemcy;BR 6.3, 2x37mm, bardzo skuteczny
+6.3-6.7;Pelotki / SPAA;Skink;Wlk. Brytania;BR 6.3, 4x20mm Polsten, doskonały
+5.7;Myśliwce;Spitfire LF Mk IXc;Wlk. Brytania;BR 5.7, jeden z najlepszych myśliwców II WŚ
+5.7;Bombowce;Tu-2S;Rosja;BR 5.7, świetny bombowiec
+5.7;Czołgi / MBT;Panther D;Niemcy;BR 5.7, doskonała lufa 75mm L/70
+5.7;Czołgi / MBT;Tiger H1 / Tiger Ost;Niemcy;BR 5.7, legendarny Tiger I
+5.7;Czołgi / MBT;M4A3 (76) W / Jumbo M4A3E2;USA;BR 5.7/5.7, Jumbo najgrubszy pancerz
+5.7;Czołgi / MBT;T-34-85;Rosja;BR 5.7, doskonały allrounder
+5.7;Pelotki / SPAA;Skink;Wlk. Brytania;Najlepszy SPAA na tym BR
+5.7;Pelotki / SPAA;SUB-I-II;Japonia;BR 5.7, podwójne działko 20mm
+5.0-5.3;Myśliwce / Szturmówki;F4U-1C Corsair;USA;BR 5.0, 4x20mm, doskonały myśliwiec
+5.0-5.3;Myśliwce / Szturmówki;P-51D-30 Mustang;USA;BR 5.3, szybki i zwinny
+5.0-5.3;Myśliwce / Szturmówki;Yak-3T;Rosja;BR 5.0, działo 37mm, niszczy w jednej salwie
+5.0-5.3;Myśliwce / Szturmówki;Bf 109 G-14;Niemcy;BR 5.3, doskonały myśliwiec Niemiec
+5.0-5.3;Bombowce;Tu-2;Rosja;BR 5.3, solidny bombowiec
+5.0-5.3;Czołgi / MBT;VK 3002 (M);Niemcy;BR 5.3, prototyp Panthera
+5.0-5.3;Czołgi / MBT;Panther D;Niemcy;BR 5.7, doskonała lufa
+5.0-5.3;Czołgi / MBT;M4A4 (SA50) / M4A1 (FL10);Francja;BR 5.3, autoloader na Shermanie!
+5.0-5.3;Czołgi / MBT;KV-85;Rosja;BR 5.3, pancerz + działo 85mm
+5.0-5.3;Pelotki / SPAA;Ostwind II;Niemcy;BR 5.3, 2x37mm, bardzo skuteczny
+5.0-5.3;Pelotki / SPAA;AMX-13 DCA 40;Francja;BR 5.3, szybki SPAA z działem 40mm
+4.7;Myśliwce;F8F-1 Bearcat;USA;BR 4.7, najszybszy piston-engine fighter USA
+4.7;Myśliwce;Spitfire F Mk IX;Wlk. Brytania;BR 4.7, doskonały myśliwiec
+4.7;Szturmówki;Su-8;Rosja;BR 4.3, ciężka szturmówka z potężnym uzbrojeniem
+4.7;Czołgi / MBT;T14;USA;BR 4.7, eksperymentalny ciężki czołg USA
+4.7;Czołgi / MBT;T-34-57;Rosja;BR 4.7, doskonałe działo przeciwczołgowe 57mm
+4.7;Czołgi / MBT;ISU-152;Rosja;BR 4.7, "zwierzosobnik" - 152mm, niszczy jednym strzałem
+4.7;Pelotki / SPAA;T77E1;USA;BR 4.7, 6x12.7mm, gęsty ogień
+4.7;Pelotki / SPAA;M42 Contraereo;Włochy;BR 4.7, 2x40mm Bofors

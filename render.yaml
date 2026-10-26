@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: on1pl-command-center
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build && cd bot && npm install
+    startCommand: cd bot && node index.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: DISCORD_CLIENT_ID
+        value: 1564365365918695454
+      - key: DISCORD_CLIENT_SECRET
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

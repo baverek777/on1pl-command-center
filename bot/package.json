@@ -1,0 +1,20 @@
+{
+  "name": "on1pl-discord-bot",
+  "version": "2.0.0",
+  "description": "Discord Bot & OAuth2 API for ^ON1PL^ War Thunder Squadron",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
