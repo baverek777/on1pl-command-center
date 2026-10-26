@@ -3,6 +3,7 @@ import { SendHorizontal, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '@/stores';
 import { cn } from '@/lib/utils';
+import { resolveSmartAIResponse } from '@/lib/aiEngine';
 
 function getApiUrl(endpoint: string): string {
   const base = window.location.port === '5173' ? 'http://localhost:3001' : '';
@@ -85,16 +86,31 @@ export default function ChatInput({ conversationId }: ChatInputProps) {
           }
         }
 
-        // Fallback if API fails
-        updateLastMessage(
-          convId,
-          '⚠️ Nie udało się połączyć z silnikiem AI. Sprawdź, czy backend działa poprawnie lub odśwież stronę.'
-        );
+        // If backend API is not available or returned non-ok (e.g. during deployment), use client smart AI engine
+        const fallbackText = await resolveSmartAIResponse(userMessage, history);
+        const chunkSize = Math.max(3, Math.floor(fallbackText.length / 30));
+        let currentIndex = 0;
+
+        const typeInterval = setInterval(() => {
+          currentIndex = Math.min(currentIndex + chunkSize, fallbackText.length);
+          updateLastMessage(convId, fallbackText.slice(0, currentIndex));
+
+          if (currentIndex >= fallbackText.length) {
+            clearInterval(typeInterval);
+            setStreaming(false);
+            setIsSending(false);
+          }
+        }, 20);
+
+        return;
       } catch (err) {
-        updateLastMessage(
-          convId,
-          '⚠️ Błąd połączenia z serwerem AI. Upewnij się, że backend jest uruchomiony.\n\nJeśli korzystasz z wersji cloudowej (Render), poczekaj chwilę — serwer może się budzić z trybu uśpienia (~30s).'
-        );
+        // Fallback on any network error
+        try {
+          const fallbackText = await resolveSmartAIResponse(userMessage);
+          updateLastMessage(convId, fallbackText);
+        } catch {
+          updateLastMessage(convId, 'Wystąpił problem z przetworzeniem zapytania. Spróbuj ponownie.');
+        }
       } finally {
         setStreaming(false);
         setIsSending(false);
