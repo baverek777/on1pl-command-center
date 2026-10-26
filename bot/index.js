@@ -1,11 +1,46 @@
 ﻿const express = require('express');
 const cors = require('cors');
+const https = require('https');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Pomocnicza funkcja HTTP oparta na wbudowanym module Node.js (działa zawsze i wszędzie)
+function httpRequest(url, options = {}, postData = null) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const reqOptions = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + urlObj.search,
+      method: options.method || 'GET',
+      headers: options.headers || {}
+    };
+
+    const req = https.request(reqOptions, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          text: async () => data,
+          json: async () => {
+            try { return JSON.parse(data); } catch (e) { return {}; }
+          }
+        });
+      });
+    });
+
+    req.on('error', reject);
+    if (postData) {
+      req.write(postData);
+    }
+    req.end();
+  });
+}
 
 const ON1PL_SYSTEM_PROMPT = `Jesteś inteligentnym AI centrum dowodzenia dywizjonu ^ON1PL^ w grze War Thunder.
 Nazywasz się "ON1PL AI". Odpowiadasz po polsku, mądrze, zwięźle i profesjonalnie, jak sztab dywizjonu.
@@ -60,7 +95,7 @@ app.post('/api/chat', async (req, res) => {
       }
 
       try {
-        const wRes = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=%C+%t+%w+%h&lang=pl`);
+        const wRes = await httpRequest(`https://wttr.in/${encodeURIComponent(city)}?format=%C+%t+%w+%h&lang=pl`);
         if (wRes.ok) {
           const wText = (await wRes.text()).trim();
           weatherData = `\n[DANE METEO DLA MIASTA: ${city}] Aktualne warunki: ${wText}. Uwzględnij te dane w naturalnej odpowiedzi dla tego miasta, komentując je pod kątem War Thunder!`;
@@ -83,20 +118,23 @@ app.post('/api/chat', async (req, res) => {
 
     const systemInstruction = ON1PL_SYSTEM_PROMPT + (weatherData ? `\n${weatherData}` : '');
 
-    const geminiRes = await fetch(
+    const geminiPayload = JSON.stringify({
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+      }
+    });
+
+    const geminiRes = await httpRequest(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemInstruction }] },
-          contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048,
-          }
-        })
-      }
+        body: geminiPayload
+      },
+      geminiPayload
     );
 
     if (geminiRes.ok) {
