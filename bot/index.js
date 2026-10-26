@@ -29,6 +29,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID || '1564365365918695454';
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || '';
 const DISCORD_BOT_TOKEN = process.env.DISCORD_TOKEN || '';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const ON1PL_GUILD_ID = '1523000610536951948';
 const REQUIRED_ROLE_NAME = 'Generał'; // Must have this role to access ^ON1PL^ data
 
@@ -434,6 +435,242 @@ app.post('/api/post-announcement', requireAuth, requireGeneralRole, async (req, 
     res.status(500).json({ error: err.message });
   }
 });
+
+// ─── AI Chat Endpoint (Gemini) ──────────────────────────────────────────────
+
+const ON1PL_SYSTEM_PROMPT = `Jesteś asystentem AI centrum dowodzenia dywizjonu ^ON1PL^ w grze War Thunder.
+Nazywasz się "ON1PL AI". Odpowiadasz po polsku, rzeczowo i profesjonalnie.
+
+Kontekst o dywizjonie ^ON1PL^:
+- Pełna nazwa: ^ON1PL^ / ONE NOVA PL
+- Gra: War Thunder
+- Serwer Discord: ON1PL-ONE NOVA PL (~181 członków)
+- Dowódca: Paweł
+- TikTok: @.on1pl
+- Discord: discord.gg/on1pl
+- Arkusz klanowy: Google Sheets "ON1PL Akta"
+- Panel sterowania: on1pl.onrender.com
+
+Twoje zadania:
+1. Odpowiadaj na DOWOLNE pytania użytkownika — nie tylko o grze. Jeśli ktoś pyta o pogodę, matematykę, programowanie, historię — odpowiedz mądrze i rzeczowo.
+2. Gdy pytanie dotyczy War Thunder, dywizjonu lub taktyki — dodawaj kontekst klanowy.
+3. Bądź pomocny, inteligentny i naturalny. Nie powtarzaj w kółko statusu dywizjonu — odpowiadaj na to, o co faktycznie pyta użytkownik.
+4. Formatuj odpowiedzi czytelnie — używaj emoji, list i pogrubień gdy to sensowne.
+5. Nie wymyślaj danych — jeśli czegoś nie wiesz, powiedz to.
+6. Ton: profesjonalny ale przyjazny, jak dowódca rozmawiający ze swoim sztabem.`;
+
+app.post('/api/chat', async (req, res) => {
+  const { messages } = req.body;
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Brak wiadomości.' });
+  }
+
+  // If Gemini API key is configured, use real AI
+  if (GEMINI_API_KEY) {
+    try {
+      const geminiMessages = messages.map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      }));
+
+      const payload = {
+        system_instruction: { parts: [{ text: ON1PL_SYSTEM_PROMPT }] },
+        contents: geminiMessages,
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.95,
+          topK: 40,
+          maxOutputTokens: 2048,
+        },
+      };
+
+      const geminiRes = await fetch(
+        \`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=\${GEMINI_API_KEY}\`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await geminiRes.json();
+
+      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+        const text = data.candidates[0].content.parts[0].text;
+        addLog('info', \`AI odpowiedź wygenerowana (Gemini) — \${text.length} znaków\`, 'ai');
+        return res.json({ response: text, model: 'gemini' });
+      }
+
+      addLog('warning', \`Gemini API — brak kandydatów: \${JSON.stringify(data).slice(0, 200)}\`, 'ai');
+      // Fall through to built-in engine
+    } catch (err) {
+      addLog('error', \`Gemini API error: \${err.message}\`, 'ai');
+      // Fall through to built-in engine
+    }
+  }
+
+  // ─── Built-in Smart Response Engine (fallback / no API key) ───
+  const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || '';
+
+  const response = generateSmartResponse(lastMsg, messages);
+  addLog('info', \`AI odpowiedź lokalna — \${response.length} znaków\`, 'ai');
+  return res.json({ response, model: 'on1pl-local' });
+});
+
+function generateSmartResponse(query, messages) {
+  const q = query.toLowerCase().trim();
+
+  // ─── Powitania ─────────────────────────────────
+  if (/^(cześć|czesc|hej|siema|elo|yo|hey|hi|hello|witaj|dzień dobry|dobry wieczór)/i.test(q)) {
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Dzień dobry' : hour < 18 ? 'Cześć' : 'Dobry wieczór';
+    return \`\${greeting}, Dowódco! 👋 Jestem asystentem AI dywizjonu ^ON1PL^. W czym mogę pomóc?
+
+Mogę:
+• 💬 Odpowiedzieć na dowolne pytanie
+• 🎮 Doradzić w kwestiach taktycznych War Thunder
+• 📝 Pomóc napisać ogłoszenie lub skrypt na TikToka
+• 📊 Omówić strategie i składy dywizjonowe
+
+Pisz śmiało!\`;
+  }
+
+  // ─── Pogoda ──────────────────────────────────
+  if (/pogod[aę]|weather|temperatura|ciepło|zimno|pada|deszcz|śnieg/i.test(q)) {
+    const city = q.match(/w ([a-ząćęłńóśźżA-ZĄĆĘŁŃÓŚŹŻ]+)(?:\\?|$|\\s)/i)?.[1] || 'Twoim mieście';
+    return \`🌤️ Niestety nie mam bezpośredniego dostępu do bieżących danych pogodowych na żywo, więc nie podpowiem Ci dokładnej prognozy dla \${city}.
+
+**Ale mogę polecić:**
+• 🌐 [Google Weather](https://www.google.com/search?q=pogoda+\${encodeURIComponent(city)}) — szybki podgląd
+• 📱 Aplikacja IMGW lub Windy.com — szczegółowe prognozy
+
+Jeśli chcesz, mogę za to pomóc w czymś z zakresu dywizjonu ^ON1PL^ lub War Thunder! 🎮\`;
+  }
+
+  // ─── Matematyka / obliczenia ──────────────────
+  if (/ile (jest|to|wynosi)|oblicz|policz|[+\\-*/^]|\\d+\\s*[×x÷\\+\\-\\*\\/]\\s*\\d+|sqrt|pierwiastek|procent/i.test(q)) {
+    // Try to evaluate simple math
+    try {
+      const sanitized = q.replace(/ile jest|ile to|ile wynosi|oblicz|policz/gi, '')
+                         .replace(/×|x/gi, '*').replace(/÷/g, '/')
+                         .replace(/[^0-9+\\-*/().\\s]/g, '').trim();
+      if (sanitized && /^[0-9+\\-*/().\\s]+$/.test(sanitized)) {
+        const result = Function('"use strict"; return (' + sanitized + ')')();
+        return \`🧮 Wynik obliczenia:\\n\\n**\${sanitized} = \${result}**\\n\\nPotrzebujesz czegoś jeszcze?\`;
+      }
+    } catch (e) { /* not simple math, continue */ }
+
+    return \`🧮 Spróbuj zapytać precyzyjniej, np. "ile jest 245 * 38" lub "oblicz 15% z 2400". Poradzę sobie z podstawowymi obliczeniami!\\n\\nDla zaawansowanej matematyki polecam Wolfram Alpha lub kalkulator Google.\`;
+  }
+
+  // ─── Status dywizjonu ─────────────────────────
+  if (/status|dywizjon|klan|on1pl|członk|ranking|squad/i.test(q)) {
+    return \`📊 **Status Dywizjonu ^ON1PL^**
+
+👥 Serwer Discord: ON1PL-ONE NOVA PL (~181 członków)
+🎮 Gra: War Thunder
+👤 Dowódca: Paweł
+🌐 Panel: [on1pl.onrender.com](https://on1pl.onrender.com)
+🎬 TikTok: [@.on1pl](https://www.tiktok.com/@.on1pl)
+
+> Dla dokładnych danych o rankingu i statystykach SQB — otwórz zakładkę **Panel Bota** po lewej stronie lub sprawdź [arkusz ^ON1PL^ Akta](https://docs.google.com/spreadsheets/d/1KcHjmev34Xtp9oxnQJTHVaU2acvkaYY_kAGelEX_Nuo).\`;
+  }
+
+  // ─── War Thunder meta / taktyka ────────────────
+  if (/meta|br\\s*1[01]|lineup|lineup|czołg|samolot|lotnictwo|taktyk|skład|leopard|strv|t-80|gripen|f-16|rakiet/i.test(q)) {
+    return \`🎯 **Porady taktyczne ^ON1PL^**
+
+Na wyższych BR-ach (10.0+) kluczowe są:
+• **Komunikacja** — voice chat to podstawa w bitwach dywizjonowych
+• **Diversyfikacja** — nie wszyscy na jednym modelu, mix NATO + backup
+• **CAS support** — zawsze miej kogoś z samolotem w rezerwie
+• **Pozycjonowanie** — zajmuj punkty, kontroluj linie ognia
+
+Popularne składy:
+🇩🇪 Leopard 2A7V + PUMA + Tornado IDS
+🇸🇪 Strv 122B+ + CV90120 + JAS39 Gripen
+🇷🇺 T-80BVM + 2S38 + Su-27
+
+Chcesz, żebym rozwinął któryś temat?\`;
+  }
+
+  // ─── Rekrutacja ──────────────────────────────
+  if (/rekrut|dołącz|nabór|nowy członek|jak dołączyć|join|apply/i.test(q)) {
+    return \`🏆 **Rekrutacja do ^ON1PL^**
+
+Szukamy aktywnych graczy War Thunder!
+
+📋 **Wymagania:**
+• Wiek 16+ (dojrzałość)
+• Sprawny mikrofon + Discord
+• Chęć wspólnej gry i rozwoju
+
+🔗 **Jak dołączyć:**
+1. Wejdź na nasz Discord: [discord.gg/on1pl](https://discord.gg/on1pl)
+2. Napisz na kanale rekrutacyjnym
+3. Poczekaj na rozmowę z oficerem
+
+Masz pytania? Pisz śmiało tutaj lub na Discordzie!\`;
+  }
+
+  // ─── TikTok ──────────────────────────────────
+  if (/tiktok|skrypt|wideo|film|nagrywanie|@\\.?on1pl/i.test(q)) {
+    return \`🎬 **Profil TikTok ^ON1PL^: [@.on1pl](https://www.tiktok.com/@.on1pl)**
+
+Aby wygenerować gotowy skrypt TikToka, skorzystaj z zakładki **Generator Treści** w panelu po lewej stronie — znajdziesz tam gotowe szablony w 4 tonach (Poważny, Shitpost, Meme, Rekrutacyjny) z możliwością edycji i kopiowania!
+
+Mogę też pomóc Ci tutaj — powiedz mi:
+• Jaki ton materiału? (poważny / zabawny / rekrutacyjny)
+• Jaki temat? (gameplay, rekrutacja, memy, highlight)
+• Jaka długość? (15s / 30s / 60s)\`;
+  }
+
+  // ─── Kim jesteś ──────────────────────────────
+  if (/kim jesteś|co umiesz|co potrafisz|jak działasz|what are you|jakie masz|pomoc|help/i.test(q)) {
+    return \`🤖 Jestem **ON1PL AI** — inteligentny asystent centrum dowodzenia dywizjonu ^ON1PL^.
+
+**Co potrafię:**
+• 💬 Odpowiadam na dowolne pytania (nie tylko o grze!)
+• 📝 Pomagam tworzyć ogłoszenia klanowe i skrypty na TikToka
+• 🎮 Doradzam w kwestiach taktycznych War Thunder
+• 🧮 Wykonuję proste obliczenia
+• 📊 Informuję o statusie dywizjonu
+
+**Wskazówka:** Dla pełnych odpowiedzi AI podłącz klucz API Gemini w zmiennych środowiskowych Render (GEMINI_API_KEY). Wtedy odpowiadam na absolutnie wszystko, tak jak ChatGPT czy Claude! 🚀
+
+Pytaj o cokolwiek — postaram się pomóc! 🎯\`;
+  }
+
+  // ─── Programowanie ──────────────────────────────
+  if (/kod|program|javascript|python|react|html|css|api|bug|error|deploy|github|render/i.test(q)) {
+    return \`💻 Widzę, że pytasz o temat programistyczny!
+
+Jestem zoptymalizowany pod kątem zarządzania dywizjonem ^ON1PL^, ale mogę pomóc z podstawowymi poradami:
+
+• **Panel ^ON1PL^** jest zbudowany w React + TypeScript + Tailwind CSS
+• **Backend** działa na Node.js + Express + discord.js
+• **Hosting:** Render.com (darmowy plan)
+• **Repozytorium:** [github.com/baverek777/on1pl-command-center](https://github.com/baverek777/on1pl-command-center)
+
+💡 **Pro tip:** Dodaj klucz GEMINI_API_KEY w Render → Environment Variables, aby odblokować pełne odpowiedzi AI na dowolne pytania techniczne!\`;
+  }
+
+  // ─── Ogólna odpowiedź fallback ────────────────
+  const context = messages.length > 1
+    ? \`(Rozmowa ma \${messages.length} wiadomości)\`
+    : '';
+
+  return \`Dzięki za pytanie! \${context}
+
+Aktualnie działam jako wbudowany silnik odpowiedzi ^ON1PL^ — potrafię pomóc z:
+• 🎮 **War Thunder** — taktyka, meta, składy, rekrutacja
+• 📢 **Dywizjon ^ON1PL^** — status, ogłoszenia, TikTok
+• 🧮 **Proste obliczenia** i odpowiedzi ogólne
+
+🚀 **Chcesz pełne AI?** Poproś Dowódcę o dodanie klucza **GEMINI_API_KEY** w ustawieniach Render — wtedy będę odpowiadać na absolutnie wszystko, jak profesjonalny asystent AI!
+
+Na razie — zadaj pytanie o dywizjon, taktykę lub napisz "pomoc", żebym pokazał co umiem! 💪\`;
+}
 
 // ─── Discord Bot Setup ─────────────────────────────────────────────────────
 let client = null;
