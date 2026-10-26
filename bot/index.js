@@ -801,3 +801,5 @@ app.listen(PORT, () => {
   addLog('info', `API nasłuchuje na ${BASE_URL}`, 'system');
   addLog('info', `Discord OAuth redirect: ${BASE_URL}/api/auth/discord/callback`, 'auth');
 });
+
+// trigger deployment
