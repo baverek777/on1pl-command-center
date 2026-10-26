@@ -1,6 +1,5 @@
 ﻿const express = require('express');
 const cors = require('cors');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
 app.use(cors());
@@ -40,10 +39,9 @@ app.post('/api/chat', async (req, res) => {
     const lastUserMsg = chatMessages[chatMessages.length - 1].content;
     const q = lastUserMsg.toLowerCase();
 
-    // Inteligentne wykrywanie pogody i miasta
     let weatherData = '';
     if (/pogod|weather|temperatura|zimno|ciepło|deszcz|pada|słońce|chmury|wiatr/i.test(q)) {
-      let city = 'Radom'; // domyślne
+      let city = 'Radom';
       if (/warszaw/i.test(q)) city = 'Warszawa';
       else if (/krakow/i.test(q)) city = 'Kraków';
       else if (/wrocław|wroclaw/i.test(q)) city = 'Wrocław';
@@ -85,7 +83,6 @@ app.post('/api/chat', async (req, res) => {
 
     const systemInstruction = ON1PL_SYSTEM_PROMPT + (weatherData ? `\n${weatherData}` : '');
 
-    // Użycie zaawansowanego, darmowego modelu gemini-1.5-pro
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
