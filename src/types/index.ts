@@ -18,7 +18,7 @@ export interface ChatConversation {
 export interface UserProfile {
   id: string;
   name: string;
-  role: 'Commander' | 'Officer' | 'Member' | 'Recruit';
+  role: string;
   avatar?: string;
   discordId?: string;
   email?: string;

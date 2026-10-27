@@ -302,9 +302,10 @@ export const useUserStore = create<UserState>()(
     (set) => ({
       user: {
         id: 'commander-1',
-        name: 'Paweł',
-        role: 'Commander',
-        discordId: 'pawel#0001',
+        name: 'Baver_-',
+        role: 'Generał',
+        discordId: '.baver',
+        email: 'baver@on1pl.gg',
         hasGeneralRole: true,
       },
       isAuthenticated: true,
