@@ -150,12 +150,13 @@ export type NavigationPage =
   | 'bot'
   | 'settings'
   | 'content'
-  | 'search';
+  | 'search'
+  | 'squadron';
 
 export interface AppSettings {
   tunnelUrl: string;
   language: 'pl' | 'en';
-  theme: 'dark' | 'light';
+  theme: 'stealth' | 'midnight' | 'cloud' | 'cyber';
   notifications: boolean;
   autoReconnect: boolean;
   botApiEndpoint: string;

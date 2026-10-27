@@ -114,42 +114,102 @@ ${wikiData.extract}
     }
   }
 
-  // 4. CLAN / SQUADRON ON1PL CONTEXT
-  if (/on1pl|dywizjon|klan|serwer|discord|akta|tiktok|dowódca|paweł/i.test(q)) {
+  // 4. CLAN / SQUADRON ON1PL CONTEXT & BR 5.0
+  if (/on1pl|dywizjon|klan|serwer|discord|akta|tiktok|dowódca|paweł|sqb|5\.0/i.test(q)) {
     return `🦅 **Dywizjon ^ON1PL^ — One Nova Poland**
 
-• **Gra:** War Thunder (Polska społeczność)
-• **Dowódca:** Paweł (Commander)
-• **Serwer Discord:** [ON1PL-ONE NOVA PL (discord.gg/on1pl)](https://discord.gg/on1pl) — ponad 180 członków
-• **Arkusz dywizjonu:** [^ON1PL^ Akta Google Sheets](https://docs.google.com/spreadsheets/d/1KcHjmev34Xtp9oxnQJTHVaU2acvkaYY_kAGelEX_Nuo)
-• **Oficjalny TikTok:** [@.on1pl](https://www.tiktok.com/@.on1pl)
-• **Centrum dowodzenia:** [on1pl.onrender.com](https://on1pl.onrender.com)
-
-W czym mogę pomóc? Mogę przygotować ogłoszenie klanowe, skrypt na TikToka lub post rekrutacyjny!`;
+• **Gra:** War Thunder (Polska elita)
+• **Dowódca:** Paweł (Commander / Marszałek)
+• **Aktualny BR w SQB:** **5.0** (aktywny od 27.10.2026 do 01.11.2026)
+• **Timesloty bitewne:**
+  - 🇪🇺 **EU:** 15:00 — 23:00 CEST
+  - 🇺🇸 **NA:** 02:00 — 08:00 CEST
+• **Meta BR 5.0:** T-34-57 (Zis-4), Sherman Firefly, KW-85, M4A1 (76) W, Yak-3, P-47D-28, Ostwind AA
+• **Serwer Discord:** [ON1PL (discord.gg/on1pl)](https://discord.gg/on1pl)
+• **Arkusz dywizjonu:** [^ON1PL^ Akta](https://docs.google.com/spreadsheets/d/1KcHjmev34Xtp9oxnQJTHVaU2acvkaYY_kAGelEX_Nuo)
+• **TikTok:** [@.on1pl](https://www.tiktok.com/@.on1pl)`;
   }
 
-  // 5. GREETINGS
+  // 5. DIRECT GEMINI 3.5 FLASH-LITE / BACKEND INVOCATION
+  try {
+    const GEMINI_CLIENT_KEY =
+      (import.meta as any).env?.VITE_GEMINI_API_KEY ||
+      localStorage.getItem('on1pl_gemini_key') ||
+      '';
+
+    if (GEMINI_CLIENT_KEY) {
+      const formattedContents = history
+        .filter((m) => m.content && m.content.trim() !== '')
+        .map((m) => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }],
+        }));
+
+      if (!formattedContents.length || formattedContents[formattedContents.length - 1].parts[0].text !== userQuery) {
+        formattedContents.push({ role: 'user', parts: [{ text: userQuery }] });
+      }
+
+      const systemPrompt = `Jesteś inteligentnym doradcą taktycznym dywizjonu ^ON1PL^ (ONE NOVA PL) w grze War Thunder.
+Dowódcą jest Paweł. Aktualnie w SQB obowiązuje BR 5.0 (27.10.2026 — 01.11.2026).
+Główne maszyny w mecie 5.0: T-34-57 (Zis-4), Sherman Firefly, KW-85, M4A1 (76), Yak-3, P-47D.
+Odpowiadaj po polsku, mądrze, zwięźle, profesjonalnie i z szacunkiem ("Dowódco", "Czołem!").`;
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${GEMINI_CLIENT_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: formattedContents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 2048,
+            },
+          }),
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (answer && answer.trim()) {
+          return answer.trim();
+        }
+      }
+    } else {
+      // Zapytanie do backendu ON1PL
+      const apiBase = window.location.port === '5173' ? 'http://localhost:3001' : '';
+      const bRes = await fetch(`${apiBase}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: userQuery, messages: history }),
+      });
+      if (bRes.ok) {
+        const bData = await bRes.json();
+        const bAnswer = bData.response || bData.reply;
+        if (bAnswer && bAnswer.trim()) {
+          return bAnswer.trim();
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('AI resolution error:', e);
+  }
+
+  // 6. GREETINGS
   if (/^(cześć|czesc|hej|siema|witaj|dzień dobry|dobry wieczór|elo|yo)/i.test(q)) {
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Dzień dobry' : hour < 18 ? 'Cześć' : 'Dobry wieczór';
-    return `${greeting}, Dowódco! 👋 Jestem inteligentnym asystentem centrum dowodzenia ^ON1PL^.
+    return `${greeting}, Dowódco! 👋 Jestem taktycznym asystentem sztabu dywizjonu ^ON1PL^.
 
-W czym mogę Ci dziś pomóc?
-• 🌤️ **Pogoda:** Zapytaj o pogodę w dowolnym mieście (np. *"jaka jest pogoda w Radomiu"* lub *"pogoda Warszawa"*)
-• 🎮 **War Thunder:** Porady taktyczne, składy maszyn, mechaniki gry
-• 📝 **Treści:** Tworzenie ogłoszeń klanowych, postów rekrutacyjnych i skryptów TikTok
-• 🧮 **Obliczenia:** Szybkie działania matematyczne
-• 📚 **Wiedza ogólna:** Pytaj o dowolne pojęcia, czołgi, samoloty czy historię!`;
+W czym mogę Ci pomóc?
+• ⚔️ **SQB BR 5.0:** Porady taktyczne i lineupy na aktywny sezon
+• 🌤️ **Meteo:** Pogoda na żywo w dowolnym mieście
+• 🎮 **War Thunder:** Porady bitewne, penetracja, mechaniki
+• 📝 **Generator:** Skrypty TikTok, rekrutacja i ogłoszenia klanowe`;
   }
 
-  // 6. DEFAULT INTELLIGENT CONVERSATIONAL RESPONSE
-  return `Oto co wiem na ten temat:
-
-Odpowiadam w ramach centrum dowodzenia dywizjonu **^ON1PL^**. 
-
-• Jeśli pytałeś o **pogodę**, upewnij się, że podałeś miasto (np. *"pogoda w Radomiu"* lub *"pogoda Kraków"*), a pobiorę dla Ciebie aktualne dane meteorologiczne na żywo! 🌤️
-• Jeśli pytałeś o **czołg lub samolot**, podaj jego nazwę (np. *"co to jest Leopard 2A7V"* lub *"F-16C"*), a przygotuję charakterystykę. ✈️
-• Jeśli chcesz stworzyć post lub skrypt — przejdź do zakładki **Generator Treści** w menu po lewej stronie. ✍️
-
-Wpisz swoje pytanie bardziej szczegółowo, a natychmiast przygotuję odpowiedź!`;
+  // 7. DEFAULT FALLBACK
+  return `Odebrałem meldunek, Dowódco! W centrum dowodzenia ^ON1PL^ analizuję aktywne wytyczne SQB BR 5.0 (27.10 - 01.11.2026). Sprecyzuj pytanie lub zadanie!`;
 }

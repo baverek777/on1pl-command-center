@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigationStore, useUserStore } from '@/stores';
+import { useNavigationStore, useUserStore, useSettingsStore } from '@/stores';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ChatView } from '@/components/chat/ChatView';
 import { BotPanel } from '@/components/bot/BotPanel';
@@ -9,6 +9,7 @@ import { SettingsPanel } from '@/components/settings/SettingsPanel';
 import { LoginPage } from '@/components/auth/LoginPage';
 import { ProjectsPage } from '@/components/projects/ProjectsPage';
 import { ArtifactsPage } from '@/components/artifacts/ArtifactsPage';
+import { SquadronStats } from '@/components/squadron/SquadronStats';
 
 function AppContent() {
   const { currentPage } = useNavigationStore();
@@ -29,6 +30,8 @@ function AppContent() {
         return <ProjectsPage />;
       case 'artifacts':
         return <ArtifactsPage />;
+      case 'squadron':
+        return <SquadronStats />;
       default:
         return <ChatView />;
     }
@@ -39,7 +42,22 @@ function AppContent() {
 
 export default function App() {
   const { isAuthenticated, login, setAccessDenied } = useUserStore();
+  const { settings } = useSettingsStore();
   const [checkingAuth, setCheckingAuth] = useState(false);
+
+  // Apply theme class to body
+  useEffect(() => {
+    const themeClass =
+      settings.theme === 'midnight'
+        ? 'theme-midnight'
+        : settings.theme === 'cloud'
+        ? 'theme-cloud'
+        : settings.theme === 'cyber'
+        ? 'theme-cyber'
+        : '';
+
+    document.body.className = themeClass;
+  }, [settings.theme]);
 
   // Handle OAuth callback parameters on load
   useEffect(() => {
@@ -57,7 +75,7 @@ export default function App() {
     if (token) {
       if (hasAccess === 'false') {
         setAccessDenied(
-          'Odmowa dostępu. Do centrum dowodzenia ^ON1PL^ mają wgląd wyłącznie osoby posiadające rangę Generał lub uprawnienia Administratora na serwerze ON1PL-ONE NOVA PL.'
+          'Odmowa dostępu (403). Do centrum dowodzenia ^ON1PL^ mają wgląd wyłącznie osoby posiadające co najmniej stopień Podporucznika lub wyższy na serwerze ON1PL.'
         );
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
@@ -102,7 +120,7 @@ export default function App() {
       <div className="min-h-screen w-screen bg-[#0e0e0e] flex items-center justify-center text-white font-mono text-sm">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin" />
-          <span>Autoryzacja rangi Generał w dywizjonie ^ON1PL^...</span>
+          <span>Weryfikacja rangi dywizjonowej (Podporucznik+) w ^ON1PL^...</span>
         </div>
       </div>
     );

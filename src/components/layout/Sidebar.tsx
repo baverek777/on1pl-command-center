@@ -20,6 +20,8 @@ import {
   User,
   ExternalLink,
   Sheet,
+  Trash2,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatStore, useNavigationStore, useUserStore } from '@/stores';
@@ -70,6 +72,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'search', label: 'Szukaj', icon: Search, action: 'search', hint: 'Ctrl+K' },
+  { id: 'squadron', label: 'Sprawdziany SQB', icon: Shield, page: 'squadron' },
   { id: 'projects', label: 'Projekty', icon: FolderKanban, page: 'projects' },
   { id: 'artifacts', label: 'Artefakty', icon: FileBox, page: 'artifacts' },
   { id: 'connectors', label: 'Integracje', icon: Plug, page: 'connectors' },
@@ -174,7 +177,7 @@ function UserDropdown({ isOpen, onClose, collapsed }: UserDropdownProps) {
 // ─── Sidebar Component ─────────────────────────────────────────────────────
 
 export function Sidebar() {
-  const { conversations, createConversation, setActiveConversation } = useChatStore();
+  const { conversations, createConversation, setActiveConversation, deleteConversation } = useChatStore();
   const {
     currentPage,
     sidebarCollapsed,
@@ -402,25 +405,36 @@ export function Sidebar() {
                 <p className="text-xs text-white/25 px-3 py-2">Brak ostatnich czatów</p>
               )}
               {recentChats.map((chat) => (
-                <button
+                <div
                   key={chat.id}
                   onClick={() => handleChatClick(chat.id)}
                   className={cn(
-                    'w-full text-left px-3 py-2 rounded-lg transition-all duration-150',
-                    'hover:bg-stealth-500/50 group',
-                    chat.id ===
-                      useChatStore.getState().activeConversationId
+                    'w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-150 group cursor-pointer',
+                    chat.id === useChatStore.getState().activeConversationId
                       ? 'bg-stealth-500/30 text-white'
-                      : 'text-white/60'
+                      : 'text-white/60 hover:bg-stealth-500/50 hover:text-white'
                   )}
                 >
-                  <p className="text-sm truncate group-hover:text-white transition-colors">
-                    {chat.title}
-                  </p>
-                  <p className="text-[10px] text-white/25 mt-0.5">
-                    {formatRelativeTime(chat.updatedAt)}
-                  </p>
-                </button>
+                  <div className="flex-1 min-w-0 pr-2">
+                    <p className="text-sm truncate">
+                      {chat.title}
+                    </p>
+                    <p className="text-[10px] text-white/25 mt-0.5">
+                      {formatRelativeTime(chat.updatedAt)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteConversation(chat.id);
+                    }}
+                    title="Usuń czat"
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-all shrink-0"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
           </div>

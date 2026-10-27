@@ -65,9 +65,10 @@ export default function ChatInput({ conversationId }: ChatInputProps) {
 
         if (res.ok) {
           const data = await res.json();
-          if (data.response) {
+          const aiResponseText = data.response || data.reply;
+          if (aiResponseText) {
             // Simulate typing effect for better UX
-            const fullText = data.response;
+            const fullText = aiResponseText;
             const chunkSize = Math.max(3, Math.floor(fullText.length / 30));
             let currentIndex = 0;
 

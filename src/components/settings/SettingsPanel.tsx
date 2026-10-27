@@ -18,6 +18,7 @@ import {
   Zap,
   KeyRound,
   Lock,
+  Palette,
 } from 'lucide-react';
 import { useSettingsStore, useUserStore, useBotStore } from '@/stores';
 import type { ShareLink } from '@/types';
@@ -186,6 +187,90 @@ export function SettingsPanel() {
               </>
             )}
           </button>
+        </div>
+
+        {/* Section: Motywy Wizualne */}
+        <div className="bg-[#181818] border border-white/5 rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-lg bg-[#d4a574]/15 text-[#d4a574] flex items-center justify-center">
+              <Palette className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-white">Motyw Interfejsu (Antigravity & Cloud)</h2>
+              <p className="text-xs text-gray-400">Wybierz jeden z 4 dedykowanych motywów operacyjnych</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              {
+                id: 'stealth' as const,
+                name: 'Stealth Dark',
+                desc: '#121212 + miedziane akcenty klanowe',
+                bg: '#121212',
+                accent: '#d4a574',
+                border: '#d4a574',
+              },
+              {
+                id: 'midnight' as const,
+                name: 'Midnight Black',
+                desc: 'Głęboka czerń #050505 + neon blue',
+                bg: '#050505',
+                accent: '#3b82f6',
+                border: '#3b82f6',
+              },
+              {
+                id: 'cloud' as const,
+                name: 'Cloud Light',
+                desc: 'Jasny Glassmorphism #F0F4F8',
+                bg: '#F0F4F8',
+                accent: '#2563EB',
+                border: '#2563EB',
+                lightText: true,
+              },
+              {
+                id: 'cyber' as const,
+                name: 'Cyber Gold',
+                desc: 'Wysoki kontrast #09090b + złoto',
+                bg: '#09090b',
+                accent: '#EAB308',
+                border: '#EAB308',
+              },
+            ].map((themeOpt) => {
+              const isSelected = settings.theme === themeOpt.id;
+              return (
+                <button
+                  key={themeOpt.id}
+                  type="button"
+                  onClick={() => updateSettings({ theme: themeOpt.id })}
+                  className={`p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                    isSelected
+                      ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg'
+                      : 'border-zinc-800 hover:border-zinc-700 bg-black/40'
+                  }`}
+                  style={{ backgroundColor: themeOpt.id === 'cloud' ? '#1c222c' : '#141414' }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-bold text-white flex items-center gap-2">
+                      <span
+                        className="w-3.5 h-3.5 rounded-full inline-block border border-white/20"
+                        style={{ backgroundColor: themeOpt.accent }}
+                      />
+                      {themeOpt.name}
+                    </span>
+                    {isSelected && (
+                      <span className="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-xs font-bold">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400">
+                    {themeOpt.desc}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Section 1: Profil Administratora */}

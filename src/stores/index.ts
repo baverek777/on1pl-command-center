@@ -595,7 +595,7 @@ export const useSettingsStore = create<SettingsState>()(
       settings: {
         tunnelUrl: 'https://on1pl-bot-random.trycloudflare.com',
         language: 'pl',
-        theme: 'dark',
+        theme: 'stealth',
         notifications: true,
         autoReconnect: true,
         botApiEndpoint: 'http://localhost:3001',
